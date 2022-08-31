@@ -1,0 +1,52 @@
+{% extends 'layout/basic.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} {% endblock %}
+{% block content %}
+{% if not customer_orders.count %}
+<h3 class="mt-5 py-5 text-center"><strong>Ваш кошик порожній</strong></h3>
+{% else %}
+<h3 class="mt-5 py-5 text-center"><strong>Ваш кошик</strong></h3>
+<div class="container-fluid">
+    <table class="table">
+        <thead>
+          <tr>
+            <th class="text-center" scope="col">Назва</th>
+            <th class="text-center" scope="col">Ціна</th>
+            <th scope="col">Кількість</th>
+            <th class="text-center" scope="col">Вартість</th>
+            <th class="text-center" scope="col"></th>
+          </tr>
+        </thead>
+        {% for item in customer_orders %}
+        {% if item.in_order == False %}
+        <tbody>
+          <tr>
+              <td class="text-center" scope="row">{{ item.product }}</td>
+              <td class="text-center" >{{ item.price }}</td>
+              <td>
+                <form class="mx-auto" action="{% url 'quantity' item.pk %}" method="POST">
+                  {% csrf_token %}
+                  <input type="number" class="form-control text-center" name="qwt" style="width: 80px" min="1" value="{{ item.quantity }}">
+                  <input type="submit" class="btn btn-light mt-3 text-center" value="Обрати">
+                </form>
+              </td>
+              <td class="text-center">{{ item.total }}</td>
+              <td><a href="{% url 'delete' item.pk %}"><button class="bi bi-x-square">X</button></a></td>
+          </tr>
+        {% endif %}
+        {% endfor %}
+      </table>
+</div>
+      <h5 class="px-5" style="text-align: right;"><strong>До сплати {{total}} UAH</strong></h3>
+<div class="container-fluid">
+  <h1 class="text-center mt-5 py-5">Форма замовлення</h1>
+  <form class="px-5" method="POST"">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="text-center">
+    <input type="submit" style="border: solid white; box-shadow: 2px 2px 2px 2px grey;" class="btn btn-light text-black btn-block mb-3 mt-3" value="Оформити замовлення">
+    </div>
+  </form>
+{% endif %}
+{% endblock %}
